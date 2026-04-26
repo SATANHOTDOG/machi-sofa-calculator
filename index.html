@@ -283,7 +283,6 @@
             <button class="remove-btn" type="button" title="刪除此列">刪除</button>
         `;
 
-        // 綁定事件監聽器至當前生成的列
         const colorSelect = row.querySelector('.color-select');
         const productSelect = row.querySelector('.product-select');
         const skuInput = row.querySelector('.sku-input');
@@ -350,12 +349,10 @@
         });
 
         removeBtn.addEventListener('click', function() {
-            // 確保畫面上至少保留一列，提升使用者體驗
             if (document.querySelectorAll('.item-row').length > 1) {
                 row.remove();
                 calculateGrandTotal();
             } else {
-                // 若為最後一列則清空內容而非移除DOM
                 colorSelect.value = "";
                 colorSelect.dispatchEvent(new Event('change'));
             }
@@ -364,10 +361,7 @@
         orderLinesContainer.appendChild(row);
     }
 
-    // 點擊新增按鈕時建立新列
     addBtn.addEventListener('click', createRow);
-
-    // 系統初始化：預設建立第一列
     createRow();
 
 </script>
