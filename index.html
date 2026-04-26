@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>麻吉沙發 SKU 報價計算系統</title>
+    <title>麻吉沙發 SKU 報價計算系統 (多品項版)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #f6f8fa;
             color: #24292e;
-            padding: 40px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
         }
@@ -19,7 +19,7 @@
             border-radius: 6px;
             padding: 24px;
             width: 100%;
-            max-width: 800px;
+            max-width: 1000px;
             box-shadow: 0 1px 3px rgba(27,31,35,0.04);
         }
         h2 {
@@ -27,25 +27,50 @@
             border-bottom: 1px solid #e1e4e8;
             padding-bottom: 16px;
             font-size: 20px;
-        }
-        .form-row {
             display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
+            justify-content: space-between;
             align-items: center;
+        }
+        .add-btn {
+            background-color: #2ea44f;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .add-btn:hover {
+            background-color: #2c974b;
+        }
+        .item-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: flex-end;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed #e1e4e8;
         }
         .form-group {
             display: flex;
             flex-direction: column;
             flex: 1;
         }
+        .form-group.small {
+            flex: 0.5;
+        }
+        .form-group.large {
+            flex: 2;
+        }
         label {
             font-weight: 600;
             margin-bottom: 6px;
-            font-size: 14px;
+            font-size: 13px;
+            color: #586069;
         }
         select, input {
-            padding: 6px 12px;
+            padding: 6px 10px;
             font-size: 14px;
             line-height: 20px;
             color: #24292e;
@@ -53,6 +78,8 @@
             border: 1px solid #e1e4e8;
             border-radius: 6px;
             outline: none;
+            width: 100%;
+            box-sizing: border-box;
         }
         select:focus, input:focus {
             border-color: #0366d6;
@@ -63,12 +90,26 @@
             color: #586069;
             cursor: not-allowed;
         }
+        .remove-btn {
+            background-color: #fafbfc;
+            color: #d73a49;
+            border: 1px solid #e1e4e8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            height: 34px;
+        }
+        .remove-btn:hover {
+            background-color: #ffeef0;
+            border-color: #d73a49;
+        }
         .total-row {
             margin-top: 24px;
             padding-top: 16px;
-            border-top: 1px solid #e1e4e8;
+            border-top: 2px solid #e1e4e8;
             text-align: right;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
         }
     </style>
@@ -76,51 +117,22 @@
 <body>
 
 <div class="container">
-    <h2>麻吉沙發 報價計算模組</h2>
+    <h2>
+        麻吉沙發 報價計算模組
+        <button class="add-btn" id="addBtn">+ 新增品項</button>
+    </h2>
     
-    <div class="form-row">
-        <div class="form-group">
-            <label for="colorSelect">顏色 (Color)</label>
-            <select id="colorSelect">
-                <option value="">請選擇顏色...</option>
-            </select>
+    <div id="orderLines">
         </div>
-        <div class="form-group" style="flex: 2;">
-            <label for="productSelect">商品名稱 (Product)</label>
-            <select id="productSelect" disabled>
-                <option value="">請先選擇顏色...</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="form-row">
-        <div class="form-group">
-            <label for="skuInput">SKU</label>
-            <input type="text" id="skuInput" readonly placeholder="自動帶入">
-        </div>
-        <div class="form-group">
-            <label for="priceInput">單價 (Unit Price)</label>
-            <input type="text" id="priceInput" readonly placeholder="自動帶入">
-        </div>
-        <div class="form-group">
-            <label for="qtyInput">數量 (QTY)</label>
-            <input type="number" id="qtyInput" value="1" min="1" disabled>
-        </div>
-        <div class="form-group">
-            <label for="subtotalInput">小計 (Subtotal)</label>
-            <input type="text" id="subtotalInput" readonly placeholder="0">
-        </div>
-    </div>
 
     <div class="total-row">
-        總計: NT$ <span id="grandTotal">0</span>
+        訂單總計: NT$ <span id="grandTotal">0</span>
     </div>
 </div>
 
 <script>
-    // 已清洗與整合的資料庫
+    // 完整資料庫
     const database = [
-        // 深灰系列
         { sku: "014420551", name: "伊登麻吉模組沙發 兩人座", color: "深灰", price: 26990 },
         { sku: "014420552", name: "伊登麻吉模組沙發 一字型", color: "深灰", price: 32990 },
         { sku: "014420553", name: "伊登麻吉模組沙發 左右轉角", color: "深灰", price: 12900 },
@@ -131,8 +143,6 @@
         { sku: "014421944", name: "伊登麻吉模組沙發 左扶手 寬", color: "深灰", price: 15900 },
         { sku: "014421945", name: "伊登麻吉模組沙發 右扶手 寬", color: "深灰", price: 15900 },
         { sku: "014421946", name: "伊登麻吉模組沙發 三人座", color: "深灰", price: 27990 },
-
-        // 墨綠系列
         { sku: "014420558", name: "伊登麻吉模組沙發 兩人座", color: "墨綠", price: 26990 },
         { sku: "014420559", name: "伊登麻吉模組沙發 左右轉角", color: "墨綠", price: 12900 },
         { sku: "014420560", name: "伊登麻吉模組沙發 單人座", color: "墨綠", price: 8900 },
@@ -143,8 +153,6 @@
         { sku: "014421947", name: "伊登麻吉模組沙發 左扶手 寬", color: "墨綠", price: 15900 },
         { sku: "014421948", name: "伊登麻吉模組沙發 右扶手 寬", color: "墨綠", price: 15900 },
         { sku: "014421949", name: "伊登麻吉模組沙發 三人座", color: "墨綠", price: 27990 },
-
-        // 貓抓亞麻灰系列
         { sku: "014420564", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻灰", price: 28990 },
         { sku: "014420565", name: "伊登麻吉模組沙發 一字型", color: "貓抓亞麻灰", price: 34990 },
         { sku: "014420566", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻灰", price: 13900 },
@@ -155,8 +163,6 @@
         { sku: "014421931", name: "伊登麻吉模組沙發 左扶手 寬", color: "貓抓亞麻灰", price: 16900 },
         { sku: "014421932", name: "伊登麻吉模組沙發 右扶手 寬", color: "貓抓亞麻灰", price: 16900 },
         { sku: "014421933", name: "伊登麻吉模組沙發 三人座", color: "貓抓亞麻灰", price: 29990 },
-
-        // 貓抓亞麻米系列
         { sku: "014420577", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻米", price: 28990 },
         { sku: "014420578", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻米", price: 13900 },
         { sku: "014420579", name: "伊登麻吉模組沙發 單人座", color: "貓抓亞麻米", price: 9900 },
@@ -167,8 +173,6 @@
         { sku: "014421953", name: "伊登麻吉模組沙發 左扶手 寬", color: "貓抓亞麻米", price: 16900 },
         { sku: "014421954", name: "伊登麻吉模組沙發 右扶手 寬", color: "貓抓亞麻米", price: 16900 },
         { sku: "014421955", name: "伊登麻吉模組沙發 三人座", color: "貓抓亞麻米", price: 29990 },
-
-        // 麥田棕系列
         { sku: "014421901", name: "伊登麻吉模組沙發 左扶手 窄", color: "麥田棕", price: 15900 },
         { sku: "014421902", name: "伊登麻吉模組沙發 右扶手 窄", color: "麥田棕", price: 15900 },
         { sku: "014421903", name: "伊登麻吉模組沙發 兩人座", color: "麥田棕", price: 28990 },
@@ -179,8 +183,6 @@
         { sku: "014421909", name: "伊登麻吉模組沙發 右扶手 寬", color: "麥田棕", price: 16900 },
         { sku: "014421916", name: "伊登麻吉模組沙發 一字型", color: "麥田棕", price: 34990 },
         { sku: "014421920", name: "伊登麻吉模組沙發 三人座", color: "麥田棕", price: 29990 },
-
-        // 苔原綠系列
         { sku: "014421917", name: "伊登麻吉模組沙發 一字型", color: "苔原綠", price: 34990 },
         { sku: "014421934", name: "伊登麻吉模組沙發 左扶手 窄", color: "苔原綠", price: 15900 },
         { sku: "014421935", name: "伊登麻吉模組沙發 右扶手 窄", color: "苔原綠", price: 15900 },
@@ -191,8 +193,6 @@
         { sku: "014421941", name: "伊登麻吉模組沙發 左扶手 寬", color: "苔原綠", price: 16900 },
         { sku: "014421942", name: "伊登麻吉模組沙發 右扶手 寬", color: "苔原綠", price: 16900 },
         { sku: "014421943", name: "伊登麻吉模組沙發 三人座", color: "苔原綠", price: 29990 },
-
-        // 雲朵米系列
         { sku: "014421918", name: "伊登麻吉模組沙發 一字型", color: "雲朵米", price: 34990 },
         { sku: "014421921", name: "伊登麻吉模組沙發 左扶手 窄", color: "雲朵米", price: 15900 },
         { sku: "014421922", name: "伊登麻吉模組沙發 右扶手 窄", color: "雲朵米", price: 15900 },
@@ -203,8 +203,6 @@
         { sku: "014421928", name: "伊登麻吉模組沙發 左扶手 寬", color: "雲朵米", price: 16900 },
         { sku: "014421929", name: "伊登麻吉模組沙發 右扶手 寬", color: "雲朵米", price: 16900 },
         { sku: "014421930", name: "伊登麻吉模組沙發 三人座", color: "雲朵米", price: 29990 },
-
-        // 平紋黃系列
         { sku: "014422049", name: "伊登麻吉模組沙發 左扶手 窄", color: "平紋黃", price: 15900 },
         { sku: "014422220", name: "伊登麻吉模組沙發 右扶手 窄", color: "平紋黃", price: 15900 },
         { sku: "014422221", name: "伊登麻吉模組沙發 兩人座", color: "平紋黃", price: 28990 },
@@ -215,8 +213,6 @@
         { sku: "014422227", name: "伊登麻吉模組沙發 右扶手 寬", color: "平紋黃", price: 16900 },
         { sku: "014422228", name: "伊登麻吉模組沙發 三人座", color: "平紋黃", price: 29990 },
         { sku: "014422270", name: "伊登麻吉模組沙發 一字型", color: "平紋黃", price: 34990 },
-
-        // 平紋藍系列
         { sku: "014422229", name: "伊登麻吉模組沙發 左扶手 窄", color: "平紋藍", price: 15900 },
         { sku: "014422230", name: "伊登麻吉模組沙發 右扶手 窄", color: "平紋藍", price: 15900 },
         { sku: "014422231", name: "伊登麻吉模組沙發 左右轉角", color: "平紋藍", price: 13900 },
@@ -229,88 +225,151 @@
         { sku: "014422281", name: "伊登麻吉模組沙發 一字型", color: "平紋藍", price: 34990 }
     ];
 
-    const colorSelect = document.getElementById('colorSelect');
-    const productSelect = document.getElementById('productSelect');
-    const skuInput = document.getElementById('skuInput');
-    const priceInput = document.getElementById('priceInput');
-    const qtyInput = document.getElementById('qtyInput');
-    const subtotalInput = document.getElementById('subtotalInput');
-    const grandTotal = document.getElementById('grandTotal');
+    const uniqueColors = [...new Set(database.map(item => item.color))];
+    const orderLinesContainer = document.getElementById('orderLines');
+    const grandTotalElement = document.getElementById('grandTotal');
+    const addBtn = document.getElementById('addBtn');
 
     function formatCurrency(num) {
         return num.toLocaleString('en-US');
     }
 
-    function initColors() {
-        const colors = [...new Set(database.map(item => item.color))];
-        colors.forEach(color => {
-            const option = document.createElement('option');
-            option.value = color;
-            option.textContent = color;
-            colorSelect.appendChild(option);
+    function calculateGrandTotal() {
+        let total = 0;
+        const subtotals = document.querySelectorAll('.subtotal-input');
+        subtotals.forEach(input => {
+            const val = parseInt(input.value.replace(/,/g, '')) || 0;
+            total += val;
         });
+        grandTotalElement.textContent = formatCurrency(total);
     }
 
-    colorSelect.addEventListener('change', function() {
-        const selectedColor = this.value;
-        productSelect.innerHTML = '<option value="">請選擇商品...</option>';
+    function createRow() {
+        const row = document.createElement('div');
+        row.className = 'item-row';
         
-        resetFields();
+        let colorOptions = '<option value="">選擇顏色...</option>';
+        uniqueColors.forEach(color => {
+            colorOptions += `<option value="${color}">${color}</option>`;
+        });
 
-        if (selectedColor) {
-            productSelect.disabled = false;
-            const filteredProducts = database.filter(item => item.color === selectedColor);
-            filteredProducts.forEach(product => {
-                const option = document.createElement('option');
-                option.value = product.sku;
-                option.textContent = product.name;
-                productSelect.appendChild(option);
-            });
-        } else {
-            productSelect.disabled = true;
-            productSelect.innerHTML = '<option value="">請先選擇顏色...</option>';
+        row.innerHTML = `
+            <div class="form-group">
+                <label>顏色 (Color)</label>
+                <select class="color-select">${colorOptions}</select>
+            </div>
+            <div class="form-group large">
+                <label>商品名稱 (Product)</label>
+                <select class="product-select" disabled>
+                    <option value="">請先選擇顏色...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>SKU</label>
+                <input type="text" class="sku-input" readonly placeholder="自動帶入">
+            </div>
+            <div class="form-group">
+                <label>單價 (Price)</label>
+                <input type="text" class="price-input" readonly placeholder="0">
+            </div>
+            <div class="form-group small">
+                <label>數量 (QTY)</label>
+                <input type="number" class="qty-input" value="1" min="1" disabled>
+            </div>
+            <div class="form-group">
+                <label>小計 (Subtotal)</label>
+                <input type="text" class="subtotal-input" readonly placeholder="0">
+            </div>
+            <button class="remove-btn" type="button" title="刪除此列">刪除</button>
+        `;
+
+        // 綁定事件監聽器至當前生成的列
+        const colorSelect = row.querySelector('.color-select');
+        const productSelect = row.querySelector('.product-select');
+        const skuInput = row.querySelector('.sku-input');
+        const priceInput = row.querySelector('.price-input');
+        const qtyInput = row.querySelector('.qty-input');
+        const subtotalInput = row.querySelector('.subtotal-input');
+        const removeBtn = row.querySelector('.remove-btn');
+
+        function resetRowFields() {
+            skuInput.value = '';
+            priceInput.value = '';
+            qtyInput.value = '1';
+            qtyInput.disabled = true;
+            subtotalInput.value = '';
+            calculateGrandTotal();
         }
-    });
 
-    productSelect.addEventListener('change', function() {
-        const selectedSku = this.value;
-        if (selectedSku) {
-            const product = database.find(item => item.sku === selectedSku);
-            skuInput.value = product.sku;
-            priceInput.value = formatCurrency(product.price);
-            qtyInput.disabled = false;
-            qtyInput.value = 1;
-            updateSubtotal(product.price, 1);
-        } else {
-            resetFields();
-        }
-    });
+        colorSelect.addEventListener('change', function() {
+            const selectedColor = this.value;
+            productSelect.innerHTML = '<option value="">請選擇商品...</option>';
+            resetRowFields();
 
-    qtyInput.addEventListener('input', function() {
-        const selectedSku = productSelect.value;
-        if (selectedSku) {
-            const product = database.find(item => item.sku === selectedSku);
-            const qty = parseInt(this.value) || 0;
-            updateSubtotal(product.price, qty);
-        }
-    });
+            if (selectedColor) {
+                productSelect.disabled = false;
+                const filteredProducts = database.filter(item => item.color === selectedColor);
+                filteredProducts.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.sku;
+                    option.textContent = product.name;
+                    productSelect.appendChild(option);
+                });
+            } else {
+                productSelect.disabled = true;
+                productSelect.innerHTML = '<option value="">請先選擇顏色...</option>';
+            }
+        });
 
-    function updateSubtotal(price, qty) {
-        const subtotal = price * qty;
-        subtotalInput.value = formatCurrency(subtotal);
-        grandTotal.textContent = formatCurrency(subtotal);
+        productSelect.addEventListener('change', function() {
+            const selectedSku = this.value;
+            if (selectedSku) {
+                const product = database.find(item => item.sku === selectedSku);
+                skuInput.value = product.sku;
+                priceInput.value = formatCurrency(product.price);
+                qtyInput.disabled = false;
+                qtyInput.value = 1;
+                
+                const subtotal = product.price * 1;
+                subtotalInput.value = formatCurrency(subtotal);
+                calculateGrandTotal();
+            } else {
+                resetRowFields();
+            }
+        });
+
+        qtyInput.addEventListener('input', function() {
+            const selectedSku = productSelect.value;
+            if (selectedSku) {
+                const product = database.find(item => item.sku === selectedSku);
+                const qty = parseInt(this.value) || 0;
+                const subtotal = product.price * qty;
+                subtotalInput.value = formatCurrency(subtotal);
+                calculateGrandTotal();
+            }
+        });
+
+        removeBtn.addEventListener('click', function() {
+            // 確保畫面上至少保留一列，提升使用者體驗
+            if (document.querySelectorAll('.item-row').length > 1) {
+                row.remove();
+                calculateGrandTotal();
+            } else {
+                // 若為最後一列則清空內容而非移除DOM
+                colorSelect.value = "";
+                colorSelect.dispatchEvent(new Event('change'));
+            }
+        });
+
+        orderLinesContainer.appendChild(row);
     }
 
-    function resetFields() {
-        skuInput.value = '';
-        priceInput.value = '';
-        qtyInput.value = '1';
-        qtyInput.disabled = true;
-        subtotalInput.value = '';
-        grandTotal.textContent = '0';
-    }
+    // 點擊新增按鈕時建立新列
+    addBtn.addEventListener('click', createRow);
 
-    initColors();
+    // 系統初始化：預設建立第一列
+    createRow();
+
 </script>
 
 </body>
