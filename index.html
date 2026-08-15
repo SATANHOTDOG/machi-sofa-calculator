@@ -113,6 +113,7 @@
             font-size: 20px;
             font-weight: bold;
         }
+
         /* 針對手機與窄螢幕的響應式設計 (RWD) */
         @media (max-width: 768px) {
             body {
@@ -161,269 +162,258 @@
         麻吉沙發 報價計算模組
         <button class="add-btn" id="addBtn">+ 新增品項</button>
     </h2>
+    
     <div id="orderLines">
+        <!-- 動態生成的商品列將插入於此 -->
     </div>
+
     <div class="total-row">
         訂單總計: NT$ <span id="grandTotal">0</span>
     </div>
 </div>
 
 <script>
-const database = [
-    { sku: "014420551", name: "伊登麻吉模組沙發 兩人座", color: "深灰", price: 26990 },
-    { sku: "014420552", name: "伊登麻吉模組沙發 一字型", color: "深灰", price: 32990 },
-    { sku: "014420553", name: "伊登麻吉模組沙發 左右轉角", color: "深灰", price: 12900 },
-    { sku: "014420554", name: "伊登麻吉模組沙發 單人座", color: "深灰", price: 8900 },
-    { sku: "014420555", name: "伊登麻吉模組沙發 腳凳", color: "深灰", price: 6300 },
-    { sku: "014420556", name: "伊登麻吉模組沙發 左扶手 窄", color: "深灰", price: 14900 },
-    { sku: "014420557", name: "伊登麻吉模組沙發 右扶手 窄", color: "深灰", price: 14900 },
-    { sku: "014420558", name: "伊登麻吉模組沙發 兩人座", color: "墨綠", price: 26990 },
-    { sku: "014420559", name: "伊登麻吉模組沙發 左右轉角", color: "墨綠", price: 12900 },
-    { sku: "014420560", name: "伊登麻吉模組沙發 單人座", color: "墨綠", price: 8900 },
-    { sku: "014420561", name: "伊登麻吉模組沙發 腳凳", color: "墨綠", price: 6300 },
-    { sku: "014420562", name: "伊登麻吉模組沙發 左扶手 窄", color: "墨綠", price: 14900 },
-    { sku: "014420563", name: "伊登麻吉模組沙發 右扶手 窄", color: "墨綠", price: 14900 },
-    { sku: "014420564", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻灰", price: 28990 },
-    { sku: "014420565", name: "伊登麻吉模組沙發 一字型", color: "貓抓亞麻灰", price: 34990 },
-    { sku: "014420566", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻灰", price: 13900 },
-    { sku: "014420567", name: "伊登麻吉模組沙發 單人座", color: "貓抓亞麻灰", price: 9900 },
-    { sku: "014420568", name: "伊登麻吉模組沙發 腳凳", color: "貓抓亞麻灰", price: 6900 },
-    { sku: "014420569", name: "伊登麻吉模組沙發 左扶手 窄", color: "貓抓亞麻灰", price: 15900 },
-    { sku: "014420570", name: "伊登麻吉模組沙發 右扶手 窄", color: "貓抓亞麻灰", price: 15900 },
-    { sku: "014420571", name: "刪-伊登麻吉模組沙發 兩人座", color: "亞麻藍", price: 28990 },
-    { sku: "014420572", name: "刪-伊登麻吉模組沙發 左右轉角", color: "亞麻藍", price: 13900 },
-    { sku: "014420573", name: "刪-伊登麻吉模組沙發 單人座", color: "亞麻藍", price: 9900 },
-    { sku: "014420574", name: "刪-伊登麻吉模組沙發 腳凳", color: "亞麻藍", price: 6900 },
-    { sku: "014420575", name: "刪-伊登麻吉模組沙發 左扶手 窄", color: "亞麻藍", price: 15900 },
-    { sku: "014420576", name: "刪-伊登麻吉模組沙發 右扶手 窄", color: "亞麻藍", price: 15900 },
-    { sku: "014420577", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻米", price: 28990 },
-    { sku: "014420578", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻米", price: 13900 },
-    { sku: "014420579", name: "伊登麻吉模組沙發 單人座", color: "貓抓亞麻米", price: 9900 },
-    { sku: "014420580", name: "伊登麻吉模組沙發 腳凳", color: "貓抓亞麻米", price: 6900 },
-    { sku: "014420581", name: "伊登麻吉模組沙發 左扶手 窄", color: "貓抓亞麻米", price: 15900 },
-    { sku: "014420582", name: "伊登麻吉模組沙發 右扶手 窄", color: "貓抓亞麻米", price: 15900 },
-    { sku: "014420584", name: "伊登麻吉模組沙發 一字型", color: "墨綠", price: 32990 },
-    { sku: "014420587", name: "刪-伊登麻吉模組沙發 一字型", color: "亞麻藍", price: 34990 },
-    { sku: "014420589", name: "伊登麻吉模組沙發 一字型", color: "貓抓亞麻米", price: 34990 },
-    { sku: "014421901", name: "伊登麻吉模組沙發 左扶手 窄", color: "麥田棕", price: 15900 },
-    { sku: "014421902", name: "伊登麻吉模組沙發 右扶手 窄", color: "麥田棕", price: 15900 },
-    { sku: "014421903", name: "伊登麻吉模組沙發 兩人座", color: "麥田棕", price: 28990 },
-    { sku: "014421904", name: "刪-伊登麻吉模組沙發 一字型", color: "麥田棕", price: 34990 },
-    { sku: "014421905", name: "伊登麻吉模組沙發 左右轉角", color: "麥田棕", price: 13900 },
-    { sku: "014421906", name: "伊登麻吉模組沙發 單人座", color: "麥田棕", price: 9900 },
-    { sku: "014421907", name: "伊登麻吉模組沙發 腳凳", color: "麥田棕", price: 6900 },
-    { sku: "014421908", name: "伊登麻吉模組沙發 左扶手 寬", color: "麥田棕", price: 16900 },
-    { sku: "014421909", name: "伊登麻吉模組沙發 右扶手 寬", color: "麥田棕", price: 16900 },
-    { sku: "014421916", name: "伊登麻吉模組沙發 一字型", color: "麥田棕", price: 34990 },
-    { sku: "014421917", name: "伊登麻吉模組沙發 一字型", color: "苔原綠", price: 34990 },
-    { sku: "014421918", name: "伊登麻吉模組沙發 一字型", color: "雲朵米", price: 34990 },
-    { sku: "014421920", name: "伊登麻吉模組沙發 三人座", color: "麥田棕", price: 29990 },
-    { sku: "014421921", name: "伊登麻吉模組沙發 左扶手 窄", color: "雲朵米", price: 15900 },
-    { sku: "014421922", name: "伊登麻吉模組沙發 右扶手 窄", color: "雲朵米", price: 15900 },
-    { sku: "014421923", name: "伊登麻吉模組沙發 兩人座", color: "雲朵米", price: 28990 },
-    { sku: "014421924", name: "刪-伊登麻吉模組沙發 一字型", color: "雲朵米", price: 34990 },
-    { sku: "014421925", name: "伊登麻吉模組沙發 左右轉角", color: "雲朵米", price: 13900 },
-    { sku: "014421926", name: "伊登麻吉模組沙發 單人座", color: "雲朵米", price: 9900 },
-    { sku: "014421927", name: "伊登麻吉模組沙發 腳凳", color: "雲朵米", price: 6900 },
-    { sku: "014421928", name: "伊登麻吉模組沙發 左扶手 寬", color: "雲朵米", price: 16900 },
-    { sku: "014421929", name: "伊登麻吉模組沙發 右扶手 寬", color: "雲朵米", price: 16900 },
-    { sku: "014421930", name: "伊登麻吉模組沙發 三人座", color: "雲朵米", price: 29990 },
-    { sku: "014421931", name: "伊登麻吉模組沙發 左扶手 寬", color: "貓抓亞麻灰", price: 16900 },
-    { sku: "014421932", name: "伊登麻吉模組沙發 右扶手 寬", color: "貓抓亞麻灰", price: 16900 },
-    { sku: "014421933", name: "伊登麻吉模組沙發 三人座", color: "貓抓亞麻灰", price: 29990 },
-    { sku: "014421934", name: "伊登麻吉模組沙發 左扶手 窄", color: "苔原綠", price: 15900 },
-    { sku: "014421935", name: "伊登麻吉模組沙發 右扶手 窄", color: "苔原綠", price: 15900 },
-    { sku: "014421936", name: "伊登麻吉模組沙發 兩人座", color: "苔原綠", price: 28990 },
-    { sku: "014421937", name: "刪-伊登麻吉模組沙發 一字型", color: "苔原綠", price: 34990 },
-    { sku: "014421938", name: "伊登麻吉模組沙發 左右轉角", color: "苔原綠", price: 13900 },
-    { sku: "014421939", name: "伊登麻吉模組沙發 單人座", color: "苔原綠", price: 9900 },
-    { sku: "014421940", name: "伊登麻吉模組沙發 腳凳", color: "苔原綠", price: 6900 },
-    { sku: "014421941", name: "伊登麻吉模組沙發 左扶手 寬", color: "苔原綠", price: 16900 },
-    { sku: "014421942", name: "伊登麻吉模組沙發 右扶手 寬", color: "苔原綠", price: 16900 },
-    { sku: "014421943", name: "伊登麻吉模組沙發 三人座", color: "苔原綠", price: 29990 },
-    { sku: "014421944", name: "伊登麻吉模組沙發 左扶手 寬", color: "深灰", price: 15900 },
-    { sku: "014421945", name: "伊登麻吉模組沙發 右扶手 寬", color: "深灰", price: 15900 },
-    { sku: "014421946", name: "伊登麻吉模組沙發 三人座", color: "深灰", price: 27990 },
-    { sku: "014421947", name: "伊登麻吉模組沙發 左扶手 寬", color: "墨綠", price: 15900 },
-    { sku: "014421948", name: "伊登麻吉模組沙發 右扶手 寬", color: "墨綠", price: 15900 },
-    { sku: "014421949", name: "伊登麻吉模組沙發 三人座", color: "墨綠", price: 27990 },
-    { sku: "014421950", name: "刪-伊登麻吉模組沙發 左扶手 寬", color: "亞麻藍", price: 16900 },
-    { sku: "014421951", name: "刪-伊登麻吉模組沙發 右扶手 寬", color: "亞麻藍", price: 16900 },
-    { sku: "014421952", name: "刪-伊登麻吉模組沙發 三人座", color: "亞麻藍", price: 29990 },
-    { sku: "014421953", name: "伊登麻吉模組沙發 左扶手 寬", color: "貓抓亞麻米", price: 16900 },
-    { sku: "014421954", name: "伊登麻吉模組沙發 右扶手 寬", color: "貓抓亞麻米", price: 16900 },
-    { sku: "014421955", name: "伊登麻吉模組沙發 三人座", color: "貓抓亞麻米", price: 29990 },
-    { sku: "014422049", name: "伊登麻吉模組沙發 左扶手 窄", color: "平紋黃", price: 15900 },
-    { sku: "014422220", name: "伊登麻吉模組沙發 右扶手 窄", color: "平紋黃", price: 15900 },
-    { sku: "014422221", name: "伊登麻吉模組沙發 兩人座", color: "平紋黃", price: 28990 },
-    { sku: "014422222", name: "刪-伊登麻吉模組沙發 一字型", color: "貓抓平紋黃", price: 34990 },
-    { sku: "014422223", name: "伊登麻吉模組沙發 左右轉角", color: "平紋黃", price: 13900 },
-    { sku: "014422224", name: "伊登麻吉模組沙發 單人座", color: "平紋黃", price: 9900 },
-    { sku: "014422225", name: "伊登麻吉模組沙發 腳凳", color: "平紋黃", price: 6900 },
-    { sku: "014422226", name: "伊登麻吉模組沙發 左扶手 寬", color: "平紋黃", price: 16900 },
-    { sku: "014422227", name: "伊登麻吉模組沙發 右扶手 寬", color: "平紋黃", price: 16900 },
-    { sku: "014422228", name: "伊登麻吉模組沙發 三人座", color: "平紋黃", price: 29990 },
-    { sku: "014422229", name: "伊登麻吉模組沙發 左扶手 窄", color: "平紋藍", price: 15900 },
-    { sku: "014422230", name: "伊登麻吉模組沙發 右扶手 窄", color: "平紋藍", price: 15900 },
-    { sku: "014422231", name: "伊登麻吉模組沙發 左右轉角", color: "平紋藍", price: 13900 },
-    { sku: "014422232", name: "伊登麻吉模組沙發 單人座", color: "平紋藍", price: 9900 },
-    { sku: "014422233", name: "伊登麻吉模組沙發 腳凳", color: "平紋藍", price: 6900 },
-    { sku: "014422234", name: "伊登麻吉模組沙發 左扶手 寬", color: "平紋藍", price: 16900 },
-    { sku: "014422235", name: "伊登麻吉模組沙發 右扶手 寬", color: "平紋藍", price: 16900 },
-    { sku: "014422236", name: "伊登麻吉模組沙發 三人座", color: "平紋藍", price: 29990 },
-    { sku: "014422237", name: "伊登麻吉模組沙發 兩人座", color: "平紋藍", price: 28990 },
-    { sku: "014422270", name: "伊登麻吉模組沙發 一字型", color: "平紋黃", price: 34990 },
-    { sku: "014422271", name: "伊登麻吉模組沙發 左扶手 窄", color: "貓抓亞麻綠", price: 15900 },
-    { sku: "014422272", name: "伊登麻吉模組沙發 右扶手 窄", color: "貓抓亞麻綠", price: 15900 },
-    { sku: "014422273", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻綠", price: 28990 },
-    { sku: "014422274", name: "伊登麻吉模組沙發 一字型", color: "貓抓亞麻綠", price: 34990 },
-    { sku: "014422275", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻綠", price: 13900 },
-    { sku: "014422276", name: "伊登麻吉模組沙發 單人座", color: "貓抓亞麻綠", price: 9900 },
-    { sku: "014422277", name: "伊登麻吉模組沙發 腳凳", color: "貓抓亞麻綠", price: 6900 },
-    { sku: "014422278", name: "伊登麻吉模組沙發 左扶手 寬", color: "貓抓亞麻綠", price: 16900 },
-    { sku: "014422279", name: "伊登麻吉模組沙發 右扶手 寬", color: "貓抓亞麻綠", price: 16900 },
-    { sku: "014422280", name: "伊登麻吉模組沙發 三人座", color: "貓抓亞麻綠", price: 29990 },
-    { sku: "014422281", name: "伊登麻吉模組沙發 一字型", color: "平紋藍", price: 34990 }
-];
+    const database = [
+        { sku: "014420551", name: "伊登麻吉模組沙發 兩人座", color: "深灰", price: 26990 },
+        { sku: "014420552", name: "伊登麻吉模組沙發 一字型", color: "深灰", price: 32990 },
+        { sku: "014420553", name: "伊登麻吉模組沙發 左右轉角", color: "深灰", price: 12900 },
+        { sku: "014420554", name: "伊登麻吉模組沙發 單人座", color: "深灰", price: 8900 },
+        { sku: "014420555", name: "伊登麻吉模組沙發 腳凳", color: "深灰", price: 6300 },
+        { sku: "014420556", name: "伊登麻吉模組沙發 左扶手 窄", color: "深灰", price: 14900 },
+        { sku: "014420557", name: "伊登麻吉模組沙發 右扶手 窄", color: "深灰", price: 14900 },
+        { sku: "014420558", name: "伊登麻吉模組沙發 兩人座", color: "墨綠", price: 26990 },
+        { sku: "014420559", name: "伊登麻吉模組沙發 左右轉角", color: "墨綠", price: 12900 },
+        { sku: "014420560", name: "伊登麻吉模組沙發 單人座", color: "墨綠", price: 8900 },
+        { sku: "014420561", name: "伊登麻吉模組沙發 腳凳", color: "墨綠", price: 6300 },
+        { sku: "014420562", name: "伊登麻吉模組沙發 左扶手 窄", color: "墨綠", price: 14900 },
+        { sku: "014420563", name: "伊登麻吉模組沙發 右扶手 窄", color: "墨綠", price: 14900 },
+        { sku: "014420564", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻灰", price: 28990 },
+        { sku: "014420565", name: "伊登麻吉模組沙發 一字型", color: "貓抓亞麻灰", price: 34990 },
+        { sku: "014420566", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻灰", price: 13900 },
+        { sku: "014420567", name: "伊登麻吉模組沙發 單人座", color: "貓抓亞麻灰", price: 9900 },
+        { sku: "014420568", name: "伊登麻吉模組沙發 腳凳", color: "貓抓亞麻灰", price: 6900 },
+        { sku: "014420569", name: "伊登麻吉模組沙發 左扶手 窄", color: "貓抓亞麻灰", price: 15900 },
+        { sku: "014420570", name: "伊登麻吉模組沙發 右扶手 窄", color: "貓抓亞麻灰", price: 15900 },
+        { sku: "014420577", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻米", price: 28990 },
+        { sku: "014420578", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻米", price: 13900 },
+        { sku: "014420579", name: "伊登麻吉模組沙發 單人座", color: "貓抓亞麻米", price: 9900 },
+        { sku: "014420580", name: "伊登麻吉模組沙發 腳凳", color: "貓抓亞麻米", price: 6900 },
+        { sku: "014420581", name: "伊登麻吉模組沙發 左扶手 窄", color: "貓抓亞麻米", price: 15900 },
+        { sku: "014420582", name: "伊登麻吉模組沙發 右扶手 窄", color: "貓抓亞麻米", price: 15900 },
+        { sku: "014420584", name: "伊登麻吉模組沙發 一字型", color: "墨綠", price: 32990 },
+        { sku: "014420589", name: "伊登麻吉模組沙發 一字型", color: "貓抓亞麻米", price: 34990 },
+        { sku: "014421901", name: "伊登麻吉模組沙發 左扶手 窄", color: "麥田棕", price: 15900 },
+        { sku: "014421902", name: "伊登麻吉模組沙發 右扶手 窄", color: "麥田棕", price: 15900 },
+        { sku: "014421903", name: "伊登麻吉模組沙發 兩人座", color: "麥田棕", price: 28990 },
+        { sku: "014421905", name: "伊登麻吉模組沙發 左右轉角", color: "麥田棕", price: 13900 },
+        { sku: "014421906", name: "伊登麻吉模組沙發 單人座", color: "麥田棕", price: 9900 },
+        { sku: "014421907", name: "伊登麻吉模組沙發 腳凳", color: "麥田棕", price: 6900 },
+        { sku: "014421908", name: "伊登麻吉模組沙發 左扶手 寬", color: "麥田棕", price: 16900 },
+        { sku: "014421909", name: "伊登麻吉模組沙發 右扶手 寬", color: "麥田棕", price: 16900 },
+        { sku: "014421916", name: "伊登麻吉模組沙發 一字型", color: "麥田棕", price: 34990 },
+        { sku: "014421917", name: "伊登麻吉模組沙發 一字型", color: "苔原綠", price: 34990 },
+        { sku: "014421918", name: "伊登麻吉模組沙發 一字型", color: "雲朵米", price: 34990 },
+        { sku: "014421920", name: "伊登麻吉模組沙發 三人座", color: "麥田棕", price: 29990 },
+        { sku: "014421921", name: "伊登麻吉模組沙發 左扶手 窄", color: "雲朵米", price: 15900 },
+        { sku: "014421922", name: "伊登麻吉模組沙發 右扶手 窄", color: "雲朵米", price: 15900 },
+        { sku: "014421923", name: "伊登麻吉模組沙發 兩人座", color: "雲朵米", price: 28990 },
+        { sku: "014421925", name: "伊登麻吉模組沙發 左右轉角", color: "雲朵米", price: 13900 },
+        { sku: "014421926", name: "伊登麻吉模組沙發 單人座", color: "雲朵米", price: 9900 },
+        { sku: "014421927", name: "伊登麻吉模組沙發 腳凳", color: "雲朵米", price: 6900 },
+        { sku: "014421928", name: "伊登麻吉模組沙發 左扶手 寬", color: "雲朵米", price: 16900 },
+        { sku: "014421929", name: "伊登麻吉模組沙發 右扶手 寬", color: "雲朵米", price: 16900 },
+        { sku: "014421930", name: "伊登麻吉模組沙發 三人座", color: "雲朵米", price: 29990 },
+        { sku: "014421931", name: "伊登麻吉模組沙發 左扶手 寬", color: "貓抓亞麻灰", price: 16900 },
+        { sku: "014421932", name: "伊登麻吉模組沙發 右扶手 寬", color: "貓抓亞麻灰", price: 16900 },
+        { sku: "014421933", name: "伊登麻吉模組沙發 三人座", color: "貓抓亞麻灰", price: 29990 },
+        { sku: "014421934", name: "伊登麻吉模組沙發 左扶手 窄", color: "苔原綠", price: 15900 },
+        { sku: "014421935", name: "伊登麻吉模組沙發 右扶手 窄", color: "苔原綠", price: 15900 },
+        { sku: "014421936", name: "伊登麻吉模組沙發 兩人座", color: "苔原綠", price: 28990 },
+        { sku: "014421938", name: "伊登麻吉模組沙發 左右轉角", color: "苔原綠", price: 13900 },
+        { sku: "014421939", name: "伊登麻吉模組沙發 單人座", color: "苔原綠", price: 9900 },
+        { sku: "014421940", name: "伊登麻吉模組沙發 腳凳", color: "苔原綠", price: 6900 },
+        { sku: "014421941", name: "伊登麻吉模組沙發 左扶手 寬", color: "苔原綠", price: 16900 },
+        { sku: "014421942", name: "伊登麻吉模組沙發 右扶手 寬", color: "苔原綠", price: 16900 },
+        { sku: "014421943", name: "伊登麻吉模組沙發 三人座", color: "苔原綠", price: 29990 },
+        { sku: "014421944", name: "伊登麻吉模組沙發 左扶手 寬", color: "深灰", price: 15900 },
+        { sku: "014421945", name: "伊登麻吉模組沙發 右扶手 寬", color: "深灰", price: 15900 },
+        { sku: "014421946", name: "伊登麻吉模組沙發 三人座", color: "深灰", price: 27990 },
+        { sku: "014421947", name: "伊登麻吉模組沙發 左扶手 寬", color: "墨綠", price: 15900 },
+        { sku: "014421948", name: "伊登麻吉模組沙發 右扶手 寬", color: "墨綠", price: 15900 },
+        { sku: "014421949", name: "伊登麻吉模組沙發 三人座", color: "墨綠", price: 27990 },
+        { sku: "014421953", name: "伊登麻吉模組沙發 左扶手 寬", color: "貓抓亞麻米", price: 16900 },
+        { sku: "014421954", name: "伊登麻吉模組沙發 右扶手 寬", color: "貓抓亞麻米", price: 16900 },
+        { sku: "014421955", name: "伊登麻吉模組沙發 三人座", color: "貓抓亞麻米", price: 29990 },
+        { sku: "014422049", name: "伊登麻吉模組沙發 左扶手 窄", color: "平紋黃", price: 15900 },
+        { sku: "014422220", name: "伊登麻吉模組沙發 右扶手 窄", color: "平紋黃", price: 15900 },
+        { sku: "014422221", name: "伊登麻吉模組沙發 兩人座", color: "平紋黃", price: 28990 },
+        { sku: "014422223", name: "伊登麻吉模組沙發 左右轉角", color: "平紋黃", price: 13900 },
+        { sku: "014422224", name: "伊登麻吉模組沙發 單人座", color: "平紋黃", price: 9900 },
+        { sku: "014422225", name: "伊登麻吉模組沙發 腳凳", color: "平紋黃", price: 6900 },
+        { sku: "014422226", name: "伊登麻吉模組沙發 左扶手 寬", color: "平紋黃", price: 16900 },
+        { sku: "014422227", name: "伊登麻吉模組沙發 右扶手 寬", color: "平紋黃", price: 16900 },
+        { sku: "014422228", name: "伊登麻吉模組沙發 三人座", color: "平紋黃", price: 29990 },
+        { sku: "014422229", name: "伊登麻吉模組沙發 左扶手 窄", color: "平紋藍", price: 15900 },
+        { sku: "014422230", name: "伊登麻吉模組沙發 右扶手 窄", color: "平紋藍", price: 15900 },
+        { sku: "014422231", name: "伊登麻吉模組沙發 左右轉角", color: "平紋藍", price: 13900 },
+        { sku: "014422232", name: "伊登麻吉模組沙發 單人座", color: "平紋藍", price: 9900 },
+        { sku: "014422233", name: "伊登麻吉模組沙發 腳凳", color: "平紋藍", price: 6900 },
+        { sku: "014422234", name: "伊登麻吉模組沙發 左扶手 寬", color: "平紋藍", price: 16900 },
+        { sku: "014422235", name: "伊登麻吉模組沙發 右扶手 寬", color: "平紋藍", price: 16900 },
+        { sku: "014422236", name: "伊登麻吉模組沙發 三人座", color: "平紋藍", price: 29990 },
+        { sku: "014422237", name: "伊登麻吉模組沙發 兩人座", color: "平紋藍", price: 28990 },
+        { sku: "014422270", name: "伊登麻吉模組沙發 一字型", color: "平紋黃", price: 34990 },
+        { sku: "014422271", name: "伊登麻吉模組沙發 左扶手 窄", color: "貓抓亞麻綠", price: 15900 },
+        { sku: "014422272", name: "伊登麻吉模組沙發 右扶手 窄", color: "貓抓亞麻綠", price: 15900 },
+        { sku: "014422273", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻綠", price: 28990 },
+        { sku: "014422274", name: "伊登麻吉模組沙發 一字型", color: "貓抓亞麻綠", price: 34990 },
+        { sku: "014422275", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻綠", price: 13900 },
+        { sku: "014422276", name: "伊登麻吉模組沙發 單人座", color: "貓抓亞麻綠", price: 9900 },
+        { sku: "014422277", name: "伊登麻吉模組沙發 腳凳", color: "貓抓亞麻綠", price: 6900 },
+        { sku: "014422278", name: "伊登麻吉模組沙發 左扶手 寬", color: "貓抓亞麻綠", price: 16900 },
+        { sku: "014422279", name: "伊登麻吉模組沙發 右扶手 寬", color: "貓抓亞麻綠", price: 16900 },
+        { sku: "014422280", name: "伊登麻吉模組沙發 三人座", color: "貓抓亞麻綠", price: 29990 },
+        { sku: "014422281", name: "伊登麻吉模組沙發 一字型", color: "平紋藍", price: 34990 }
+    ];
 
-const uniqueColors = [...new Set(database.map(item => item.color))];
-const orderLinesContainer = document.getElementById('orderLines');
-const grandTotalElement = document.getElementById('grandTotal');
-const addBtn = document.getElementById('addBtn');
+    const uniqueColors = [...new Set(database.map(item => item.color))];
+    const orderLinesContainer = document.getElementById('orderLines');
+    const grandTotalElement = document.getElementById('grandTotal');
+    const addBtn = document.getElementById('addBtn');
 
-function formatCurrency(num) {
-    return num.toLocaleString('en-US');
-}
-
-function calculateGrandTotal() {
-    let total = 0;
-    const subtotals = document.querySelectorAll('.subtotal-input');
-    subtotals.forEach(input => {
-        const val = parseInt(input.value.replace(/,/g, '')) || 0;
-        total += val;
-    });
-    grandTotalElement.textContent = formatCurrency(total);
-}
-
-function createRow() {
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    
-    let colorOptions = '<option value="">選擇顏色...</option>';
-    uniqueColors.forEach(color => {
-        colorOptions += `<option value="${color}">${color}</option>`;
-    });
-
-    row.innerHTML = `
-        <div class="form-group">
-            <label>顏色 (Color)</label>
-            <select class="color-select">${colorOptions}</select>
-        </div>
-        <div class="form-group large">
-            <label>商品名稱 (Product)</label>
-            <select class="product-select" disabled>
-                <option value="">請先選擇顏色...</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>SKU</label>
-            <input type="text" class="sku-input" readonly placeholder="自動帶入">
-        </div>
-        <div class="form-group">
-            <label>單價 (Price)</label>
-            <input type="text" class="price-input" readonly placeholder="0">
-        </div>
-        <div class="form-group small">
-            <label>數量 (QTY)</label>
-            <input type="number" class="qty-input" value="1" min="1" disabled>
-        </div>
-        <div class="form-group">
-            <label>小計 (Subtotal)</label>
-            <input type="text" class="subtotal-input" readonly placeholder="0">
-        </div>
-        <button class="remove-btn" type="button" title="刪除此列">刪除</button>
-    `;
-
-    const colorSelect = row.querySelector('.color-select');
-    const productSelect = row.querySelector('.product-select');
-    const skuInput = row.querySelector('.sku-input');
-    const priceInput = row.querySelector('.price-input');
-    const qtyInput = row.querySelector('.qty-input');
-    const subtotalInput = row.querySelector('.subtotal-input');
-    const removeBtn = row.querySelector('.remove-btn');
-
-    function resetRowFields() {
-        skuInput.value = '';
-        priceInput.value = '';
-        qtyInput.value = '1';
-        qtyInput.disabled = true;
-        subtotalInput.value = '';
-        calculateGrandTotal();
+    function formatCurrency(num) {
+        return num.toLocaleString('en-US');
     }
 
-    colorSelect.addEventListener('change', function() {
-        const selectedColor = this.value;
-        productSelect.innerHTML = '<option value="">請選擇商品...</option>';
-        resetRowFields();
+    function calculateGrandTotal() {
+        let total = 0;
+        const subtotals = document.querySelectorAll('.subtotal-input');
+        subtotals.forEach(input => {
+            const val = parseInt(input.value.replace(/,/g, '')) || 0;
+            total += val;
+        });
+        grandTotalElement.textContent = formatCurrency(total);
+    }
 
-        if (selectedColor) {
-            productSelect.disabled = false;
-            const filteredProducts = database.filter(item => item.color === selectedColor);
-            filteredProducts.forEach(product => {
-                const option = document.createElement('option');
-                option.value = product.sku;
-                option.textContent = product.name;
-                productSelect.appendChild(option);
-            });
-        } else {
-            productSelect.disabled = true;
-            productSelect.innerHTML = '<option value="">請先選擇顏色...</option>';
-        }
-    });
+    function createRow() {
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        
+        let colorOptions = '<option value="">選擇顏色...</option>';
+        uniqueColors.forEach(color => {
+            colorOptions += `<option value="${color}">${color}</option>`;
+        });
 
-    productSelect.addEventListener('change', function() {
-        const selectedSku = this.value;
-        if (selectedSku) {
-            const product = database.find(item => item.sku === selectedSku);
-            skuInput.value = product.sku;
-            priceInput.value = formatCurrency(product.price);
-            qtyInput.disabled = false;
-            qtyInput.value = 1;
-            
-            const subtotal = product.price * 1;
-            subtotalInput.value = formatCurrency(subtotal);
+        row.innerHTML = `
+            <div class="form-group">
+                <label>顏色 (Color)</label>
+                <select class="color-select">${colorOptions}</select>
+            </div>
+            <div class="form-group large">
+                <label>商品名稱 (Product)</label>
+                <select class="product-select" disabled>
+                    <option value="">請先選擇顏色...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>SKU</label>
+                <input type="text" class="sku-input" readonly placeholder="自動帶入">
+            </div>
+            <div class="form-group">
+                <label>單價 (Price)</label>
+                <input type="text" class="price-input" readonly placeholder="0">
+            </div>
+            <div class="form-group small">
+                <label>數量 (QTY)</label>
+                <input type="number" class="qty-input" value="1" min="1" disabled>
+            </div>
+            <div class="form-group">
+                <label>小計 (Subtotal)</label>
+                <input type="text" class="subtotal-input" readonly placeholder="0">
+            </div>
+            <button class="remove-btn" type="button" title="刪除此列">刪除</button>
+        `;
+
+        const colorSelect = row.querySelector('.color-select');
+        const productSelect = row.querySelector('.product-select');
+        const skuInput = row.querySelector('.sku-input');
+        const priceInput = row.querySelector('.price-input');
+        const qtyInput = row.querySelector('.qty-input');
+        const subtotalInput = row.querySelector('.subtotal-input');
+        const removeBtn = row.querySelector('.remove-btn');
+
+        function resetRowFields() {
+            skuInput.value = '';
+            priceInput.value = '';
+            qtyInput.value = '1';
+            qtyInput.disabled = true;
+            subtotalInput.value = '';
             calculateGrandTotal();
-        } else {
+        }
+
+        colorSelect.addEventListener('change', function() {
+            const selectedColor = this.value;
+            productSelect.innerHTML = '<option value="">請選擇商品...</option>';
             resetRowFields();
-        }
-    });
 
-    qtyInput.addEventListener('input', function() {
-        const selectedSku = productSelect.value;
-        if (selectedSku) {
-            const product = database.find(item => item.sku === selectedSku);
-            const qty = parseInt(this.value) || 0;
-            const subtotal = product.price * qty;
-            subtotalInput.value = formatCurrency(subtotal);
-            calculateGrandTotal();
-        }
-    });
+            if (selectedColor) {
+                productSelect.disabled = false;
+                const filteredProducts = database.filter(item => item.color === selectedColor);
+                filteredProducts.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.sku;
+                    option.textContent = product.name;
+                    productSelect.appendChild(option);
+                });
+            } else {
+                productSelect.disabled = true;
+                productSelect.innerHTML = '<option value="">請先選擇顏色...</option>';
+            }
+        });
 
-    removeBtn.addEventListener('click', function() {
-        if (document.querySelectorAll('.item-row').length > 1) {
-            row.remove();
-            calculateGrandTotal();
-        } else {
-            colorSelect.value = "";
-            colorSelect.dispatchEvent(new Event('change'));
-        }
-    });
+        productSelect.addEventListener('change', function() {
+            const selectedSku = this.value;
+            if (selectedSku) {
+                const product = database.find(item => item.sku === selectedSku);
+                skuInput.value = product.sku;
+                priceInput.value = formatCurrency(product.price);
+                qtyInput.disabled = false;
+                qtyInput.value = 1;
+                
+                const subtotal = product.price * 1;
+                subtotalInput.value = formatCurrency(subtotal);
+                calculateGrandTotal();
+            } else {
+                resetRowFields();
+            }
+        });
 
-    orderLinesContainer.appendChild(row);
-}
+        qtyInput.addEventListener('input', function() {
+            const selectedSku = productSelect.value;
+            if (selectedSku) {
+                const product = database.find(item => item.sku === selectedSku);
+                const qty = parseInt(this.value) || 0;
+                const subtotal = product.price * qty;
+                subtotalInput.value = formatCurrency(subtotal);
+                calculateGrandTotal();
+            }
+        });
 
-addBtn.addEventListener('click', createRow);
-createRow();
+        removeBtn.addEventListener('click', function() {
+            if (document.querySelectorAll('.item-row').length > 1) {
+                row.remove();
+                calculateGrandTotal();
+            } else {
+                colorSelect.value = "";
+                colorSelect.dispatchEvent(new Event('change'));
+            }
+        });
+
+        orderLinesContainer.appendChild(row);
+    }
+
+    addBtn.addEventListener('click', createRow);
+    createRow();
 </script>
 
 </body>
