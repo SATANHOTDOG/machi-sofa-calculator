@@ -3,155 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>麻吉沙發 SKU 報價計算系統 (多品項版)</title>
+    <title>麻吉沙發 報價與空間演算系統 (完美幾何版)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f6f8fa;
-            color: #24292e;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
+            background-color: #f6f8fa; color: #24292e; padding: 40px 20px;
+            display: flex; flex-direction: column; align-items: center; gap: 24px;
         }
         .container {
-            background-color: #ffffff;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            padding: 24px;
-            width: 100%;
-            max-width: 1000px;
-            box-shadow: 0 1px 3px rgba(27,31,35,0.04);
-            box-sizing: border-box;
+            background-color: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px;
+            padding: 24px; width: 100%; max-width: 1200px; box-shadow: 0 1px 3px rgba(27,31,35,0.04); box-sizing: border-box;
         }
-        h2 {
-            margin-top: 0;
-            border-bottom: 1px solid #e1e4e8;
-            padding-bottom: 16px;
-            font-size: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .add-btn {
-            background-color: #2ea44f;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .add-btn:hover {
-            background-color: #2c974b;
-        }
-        .item-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-            align-items: flex-end;
-            padding-bottom: 16px;
-            border-bottom: 1px dashed #e1e4e8;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-        .form-group.small {
-            flex: 0.5;
-        }
-        .form-group.large {
-            flex: 2;
-        }
-        label {
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 13px;
-            color: #586069;
-        }
-        select, input {
-            padding: 8px 10px;
-            font-size: 14px;
-            line-height: 20px;
-            color: #24292e;
-            background-color: #fafbfc;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            outline: none;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        select:focus, input:focus {
-            border-color: #0366d6;
-            box-shadow: 0 0 0 3px rgba(3,102,214,0.3);
-        }
-        input[readonly] {
-            background-color: #eaecef;
-            color: #586069;
-            cursor: not-allowed;
-        }
-        .remove-btn {
-            background-color: #fafbfc;
-            color: #d73a49;
-            border: 1px solid #e1e4e8;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            height: 38px;
-        }
-        .remove-btn:hover {
-            background-color: #ffeef0;
-            border-color: #d73a49;
-        }
-        .total-row {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 2px solid #e1e4e8;
-            text-align: right;
-            font-size: 20px;
-            font-weight: bold;
-        }
+        h2 { margin-top: 0; border-bottom: 1px solid #e1e4e8; padding-bottom: 16px; font-size: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .add-btn { background-color: #2ea44f; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+        .add-btn:hover { background-color: #2c974b; }
+        
+        .item-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-end; padding: 12px; border: 1px solid #e1e4e8; border-radius: 8px; background-color: #fafbfc; transition: all 0.2s; cursor: grab; }
+        .item-row:active { cursor: grabbing; background-color: #f1f8ff; border-color: #0366d6; }
+        .item-row.dragging { opacity: 0.4; background-color: #e1e4e8; }
+        
+        .form-group { display: flex; flex-direction: column; flex: 1; }
+        .form-group.small { flex: 0.6; }
+        .form-group.large { flex: 1.8; }
+        label { font-weight: 600; margin-bottom: 6px; font-size: 12px; color: #586069; }
+        select, input { padding: 8px 10px; font-size: 14px; line-height: 20px; color: #24292e; background-color: #ffffff; border: 1px solid #d1d5da; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        input[readonly] { background-color: #eaecef; color: #586069; cursor: not-allowed; }
+        
+        .action-group { display: flex; flex-direction: column; gap: 4px; justify-content: flex-end; width: 40px; }
+        .action-row { display: flex; gap: 4px; }
+        .btn-icon { background-color: #ffffff; border: 1px solid #d1d5da; border-radius: 6px; cursor: pointer; height: 30px; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #586069; padding: 0; }
+        .btn-delete { height: 38px; color: #d73a49; font-weight: bold; font-size: 16px;}
+        .total-row { margin-top: 20px; padding-top: 16px; border-top: 2px solid #e1e4e8; text-align: right; font-size: 22px; font-weight: bold; color: #d73a49;}
+        
+        .preview-container { background-color: #1e1e1e; border: 1px solid #333; border-radius: 8px; padding: 24px; width: 100%; max-width: 1200px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; overflow-x: auto; }
+        .preview-header { width: 100%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; padding-bottom: 12px; margin-bottom: 16px; }
+        .preview-title { font-size: 16px; font-weight: bold; color: #8b949e; margin: 0;}
+        
+        .compass-ctrl { display: flex; align-items: center; gap: 8px; background-color: #2d333b; padding: 6px 12px; border-radius: 6px; border: 1px solid #444c56; }
+        .compass-label { color: #adbac7; font-size: 13px; font-weight: bold;}
+        .compass-btn { background-color: #22272e; color: #adbac7; border: 1px solid #444c56; border-radius: 4px; width: 32px; height: 32px; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .compass-btn.active { background-color: #0366d6; color: white; border-color: #0366d6; box-shadow: 0 0 8px rgba(3,102,214,0.6);}
+        .compass-btn:hover:not(.active) { background-color: #373e47; }
 
-        /* 針對手機與窄螢幕的響應式設計 (RWD) */
+        .dim-display { background-color: #ffdce0; color: #9e1c23; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; border: 1px solid #f9828b; margin-bottom: 24px; text-align: center; }
+        .layout-area { position: relative; background-color: transparent; margin: 0 auto; }
+        .sofa-module { position: absolute; background-color: #f0f6fc; border: 2px solid #0366d6; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 12px; font-weight: bold; color: #0366d6; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: all 0.3s; }
+        .sofa-module.corner { background-color: #ffeef0; border-color: #d73a49; color: #d73a49; }
+        .sofa-module.ottoman { background-color: #fff8c5; border-color: #b08800; color: #b08800; border-style: dashed; }
+        .module-desc { font-size: 10px; opacity: 0.8; margin-top: 2px; font-weight: normal;}
+        
         @media (max-width: 768px) {
-            body {
-                padding: 16px 10px;
-            }
-            .container {
-                padding: 16px;
-            }
-            h2 {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            .add-btn {
-                width: 100%;
-                padding: 10px;
-            }
-            .item-row {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                background-color: #f6f8fa;
-                padding: 16px;
-                border-radius: 8px;
-                border: 1px solid #e1e4e8;
-                gap: 12px;
-                align-items: start;
-            }
-            /* 讓顏色、商品名稱、刪除按鈕佔據整列 (100% 寬度) */
-            .item-row > .form-group:nth-child(1),
-            .item-row > .form-group:nth-child(2),
-            .item-row > .remove-btn {
-                grid-column: 1 / -1;
-            }
-            .remove-btn {
-                margin-top: 8px;
-                height: 44px;
-                font-weight: bold;
-            }
+            body { padding: 16px 8px; }
+            .container, .preview-container { padding: 16px; }
+            .item-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; cursor: default;}
+            .item-row > .form-group:nth-child(1), .item-row > .form-group:nth-child(2) { grid-column: 1 / -1; }
+            .action-group { grid-column: 1 / -1; width: 100%; flex-direction: row; height: 42px; gap: 8px;}
+            .action-row { flex: 1; display: flex; gap: 8px;}
+            .btn-icon { height: 100%; flex: 1; font-size: 16px;}
+            .btn-delete { flex: 2; height: 100%; font-size: 14px;}
+            .preview-header { flex-direction: column; gap: 12px; align-items: flex-start; }
         }
     </style>
 </head>
@@ -159,17 +69,26 @@
 
 <div class="container">
     <h2>
-        麻吉沙發 報價計算模組
+        麻吉沙發 空間與報價演算系統
         <button class="add-btn" id="addBtn">+ 新增品項</button>
     </h2>
-    
-    <div id="orderLines">
-        <!-- 動態生成的商品列將插入於此 -->
-    </div>
+    <div id="orderLines"></div>
+    <div class="total-row">訂單總計: NT$ <span id="grandTotal">0</span></div>
+</div>
 
-    <div class="total-row">
-        訂單總計: NT$ <span id="grandTotal">0</span>
+<div class="preview-container" id="previewWrapper" style="display: none;">
+    <div class="preview-header">
+        <div class="preview-title">📐 AI 空間座標演算平面圖</div>
+        <div class="compass-ctrl">
+            <span class="compass-label">首件商品起點方向:</span>
+            <button class="compass-btn active" data-dir="0" title="往右蓋 (適用右L型)">➡</button>
+            <button class="compass-btn" data-dir="1" title="往下蓋">⬇</button>
+            <button class="compass-btn" data-dir="2" title="往左蓋">⬅</button>
+            <button class="compass-btn" data-dir="3" title="往上蓋 (適用左L型)">⬆</button>
+        </div>
     </div>
+    <div class="dim-display" id="dimDisplay">🚨 最大空間極限：寬 0 cm × 深 0 cm</div>
+    <div id="layoutArea" class="layout-area"></div>
 </div>
 
 <script>
@@ -191,7 +110,7 @@
         { sku: "014420565", name: "伊登麻吉模組沙發 一字型", color: "貓抓亞麻灰", price: 34990 },
         { sku: "014420566", name: "伊登麻吉模組沙發 左右轉角", color: "貓抓亞麻灰", price: 13900 },
         { sku: "014420567", name: "伊登麻吉模組沙發 單人座", color: "貓抓亞麻灰", price: 9900 },
-        { sku: "014420568", name: "伊登麻吉模組沙發 腳凳", color: "貓抓亞麻灰", price: 6900 },
+        { sku: "014420568", name: "伊登麻吉模沙發 腳凳", color: "貓抓亞麻灰", price: 6900 },
         { sku: "014420569", name: "伊登麻吉模組沙發 左扶手 窄", color: "貓抓亞麻灰", price: 15900 },
         { sku: "014420570", name: "伊登麻吉模組沙發 右扶手 窄", color: "貓抓亞麻灰", price: 15900 },
         { sku: "014420577", name: "伊登麻吉模組沙發 兩人座", color: "貓抓亞麻米", price: 28990 },
@@ -261,7 +180,7 @@
         { sku: "014422234", name: "伊登麻吉模組沙發 左扶手 寬", color: "平紋藍", price: 16900 },
         { sku: "014422235", name: "伊登麻吉模組沙發 右扶手 寬", color: "平紋藍", price: 16900 },
         { sku: "014422236", name: "伊登麻吉模組沙發 三人座", color: "平紋藍", price: 29990 },
-        { sku: "014422237", name: "伊登麻吉模組沙發 兩人座", color: "平紋藍", price: 28990 },
+        { sku: "014422237", name: "伊登麻吉模沙發 兩人座", color: "平紋藍", price: 28990 },
         { sku: "014422270", name: "伊登麻吉模組沙發 一字型", color: "平紋黃", price: 34990 },
         { sku: "014422271", name: "伊登麻吉模組沙發 左扶手 窄", color: "貓抓亞麻綠", price: 15900 },
         { sku: "014422272", name: "伊登麻吉模組沙發 右扶手 窄", color: "貓抓亞麻綠", price: 15900 },
@@ -279,59 +198,216 @@
     const uniqueColors = [...new Set(database.map(item => item.color))];
     const orderLinesContainer = document.getElementById('orderLines');
     const grandTotalElement = document.getElementById('grandTotal');
-    const addBtn = document.getElementById('addBtn');
+    const layoutArea = document.getElementById('layoutArea');
+    const previewWrapper = document.getElementById('previewWrapper');
+    const dimDisplay = document.getElementById('dimDisplay');
 
-    function formatCurrency(num) {
-        return num.toLocaleString('en-US');
-    }
-
-    function calculateGrandTotal() {
-        let total = 0;
-        const subtotals = document.querySelectorAll('.subtotal-input');
-        subtotals.forEach(input => {
-            const val = parseInt(input.value.replace(/,/g, '')) || 0;
-            total += val;
+    let initialDrawDir = 0; 
+    document.querySelectorAll('.compass-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.compass-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            initialDrawDir = parseInt(this.getAttribute('data-dir'));
+            calculateTotals(); 
         });
-        grandTotalElement.textContent = formatCurrency(total);
+    });
+
+    const scale = 0.9; 
+    const moduleDefs = {
+        "左扶手 窄": { label: "左扶手窄", w: 96, h: 99, type: 'arm' },
+        "右扶手 窄": { label: "右扶手窄", w: 96, h: 99, type: 'arm' },
+        "左扶手 寬": { label: "左扶手寬", w: 115, h: 99, type: 'arm' },
+        "右扶手 寬": { label: "右扶手寬", w: 115, h: 99, type: 'arm' },
+        "單人座": { label: "單人座", w: 96, h: 99, type: 'seat' },
+        "轉角": { label: "轉角", w: 95, h: 95, type: 'corner' },
+        "左右轉角": { label: "轉角", w: 95, h: 95, type: 'corner' },
+        "腳凳": { label: "腳凳", w: 106, h: 96, type: 'ottoman' }
+    };
+
+    function formatCurrency(num) { return num.toLocaleString('en-US'); }
+    function parseItemName(name) {
+        for (const key in moduleDefs) { if (name.includes(key)) return moduleDefs[key]; }
+        return null;
     }
+
+    let draggingRow = null;
+    orderLinesContainer.addEventListener('dragstart', e => {
+        if (e.target.classList.contains('item-row')) {
+            draggingRow = e.target; setTimeout(() => e.target.classList.add('dragging'), 0);
+        }
+    });
+    orderLinesContainer.addEventListener('dragend', e => {
+        if (e.target.classList.contains('item-row')) {
+            e.target.classList.remove('dragging'); draggingRow = null; calculateTotals();
+        }
+    });
+    orderLinesContainer.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(orderLinesContainer, e.clientY);
+        if (draggingRow) {
+            if (afterElement == null) orderLinesContainer.appendChild(draggingRow);
+            else orderLinesContainer.insertBefore(draggingRow, afterElement);
+        }
+    });
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.item-row:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+            else return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // ★ 靠背基準線對齊幾何引擎 ★
+    function renderAbsoluteLayout(items) {
+        layoutArea.innerHTML = '';
+        if (items.length === 0) { previewWrapper.style.display = 'none'; return; }
+        previewWrapper.style.display = 'flex';
+
+        let mainList = [];
+        let allBlocks = [];
+        let cx = 0, cy = 0; 
+        let dir = initialDrawDir;
+
+        for (let i = 0; i < items.length; i++) {
+            let def = parseItemName(items[i].name);
+            if (def && def.type !== 'ottoman') {
+                let drawW = (dir % 2 !== 0) ? def.h : def.w;
+                let drawH = (dir % 2 !== 0) ? def.w : def.h;
+                
+                let x = 0, y = 0;
+                // 依據繪製方向，讓新的元件貼齊「靠背」基準線
+                if (dir === 0) { x = cx; y = cy; } // 往右畫，靠背在上方
+                else if (dir === 1) { x = cx - drawW; y = cy; } // 往下畫，靠背在右方
+                else if (dir === 2) { x = cx - drawW; y = cy - drawH; } // 往左畫，靠背在下方
+                else if (dir === 3) { x = cx; y = cy - drawH; } // 往上畫，靠背在左方
+                
+                let block = { ...def, origIndex: i, x: x, y: y, drawW: drawW, drawH: drawH, placedDir: dir };
+                mainList.push(block);
+                allBlocks.push(block);
+                
+                // 轉角運算：右轉 90 度，並重新設定下一塊的基準點
+                if (def.type === 'corner') {
+                    let prevDir = dir;
+                    dir = (dir + 1) % 4; 
+                    if (prevDir === 0) { cx = x + def.w; cy = y + def.h; }
+                    else if (prevDir === 1) { cx = x; cy = y + def.h; }
+                    else if (prevDir === 2) { cx = x; cy = y; }
+                    else if (prevDir === 3) { cx = x + def.w; cy = y; }
+                } else {
+                    // 一般元件推進基準點
+                    if (dir === 0) cx += drawW;
+                    else if (dir === 1) cy += drawH;
+                    else if (dir === 2) cx -= drawW;
+                    else if (dir === 3) cy -= drawH;
+                }
+            }
+        }
+
+        // 腳凳吸附：找最近的主體，黏在它的「正面」
+        for (let i = 0; i < items.length; i++) {
+            let def = parseItemName(items[i].name);
+            if (def && def.type === 'ottoman') {
+                let target = null;
+                for (let b = i - 1; b >= 0; b--) { target = mainList.find(m => m.origIndex === b); if (target) break; }
+                if (!target) { for (let f = i + 1; f < items.length; f++) { target = mainList.find(m => m.origIndex === f); if (target) break; } }
+                
+                if (target) {
+                    let ow = def.w, oh = def.h;
+                    if (target.placedDir % 2 !== 0) { ow = def.h; oh = def.w; }
+                    
+                    let ox = target.x, oy = target.y;
+                    if (target.placedDir === 0) { oy = target.y + target.drawH; ox = target.x + (target.drawW - ow) / 2; }
+                    else if (target.placedDir === 1) { ox = target.x - ow; oy = target.y + (target.drawH - oh) / 2; }
+                    else if (target.placedDir === 2) { oy = target.y - oh; ox = target.x + (target.drawW - ow) / 2; }
+                    else if (target.placedDir === 3) { ox = target.x + target.drawW; oy = target.y + (target.drawH - oh) / 2; }
+                    
+                    allBlocks.push({ ...def, x: ox, y: oy, drawW: ow, drawH: oh, type: 'ottoman' });
+                } else {
+                    allBlocks.push({ ...def, x: 0, y: 0, drawW: def.w, drawH: def.h, type: 'ottoman' });
+                }
+            }
+        }
+
+        if(allBlocks.length > 0) {
+            let minX = Math.min(...allBlocks.map(b => b.x));
+            let minY = Math.min(...allBlocks.map(b => b.y));
+            let maxX = Math.max(...allBlocks.map(b => b.x + b.drawW));
+            let maxY = Math.max(...allBlocks.map(b => b.y + b.drawH));
+            
+            let totalW = maxX - minX;
+            let totalH = maxY - minY;
+            
+            layoutArea.style.width = (totalW * scale) + 'px';
+            layoutArea.style.height = (totalH * scale) + 'px';
+            dimDisplay.innerHTML = `🚨 最大空間極限估值：寬 ${totalW} cm × 深 ${totalH} cm`;
+
+            allBlocks.forEach(b => {
+                const div = document.createElement('div');
+                div.className = `sofa-module ${b.type}`;
+                div.style.width = (b.drawW * scale) + 'px';
+                div.style.height = (b.drawH * scale) + 'px';
+                div.style.left = ((b.x - minX) * scale) + 'px';
+                div.style.top = ((b.y - minY) * scale) + 'px';
+                
+                div.innerHTML = `${b.label}<div class="module-desc">${b.drawW}x${b.drawH}</div>`;
+                layoutArea.appendChild(div);
+            });
+        }
+    }
+
+    function calculateTotals() {
+        let total = 0; let layoutItems = []; 
+        const subtotals = document.querySelectorAll('.subtotal-input');
+        const rows = document.querySelectorAll('.item-row');
+        
+        rows.forEach((row, index) => {
+            const val = parseInt(subtotals[index].value.replace(/,/g, '')) || 0;
+            total += val;
+            const select = row.querySelector('.product-select');
+            const qtyInput = row.querySelector('.qty-input');
+            const qty = parseInt(qtyInput.value) || 0;
+            
+            if(select.value && qty > 0) {
+                const name = select.options[select.selectedIndex].text;
+                for(let i=0; i<qty; i++) layoutItems.push({name: name});
+            }
+        });
+        
+        grandTotalElement.textContent = formatCurrency(total);
+        renderAbsoluteLayout(layoutItems); 
+    }
+
+    function moveRow(btn, direction) {
+        const row = btn.closest('.item-row');
+        if (direction === 'up' && row.previousElementSibling) {
+            row.parentNode.insertBefore(row, row.previousElementSibling); calculateTotals();
+        } else if (direction === 'down' && row.nextElementSibling) {
+            row.parentNode.insertBefore(row.nextElementSibling, row); calculateTotals();
+        }
+    }
+
+    document.getElementById('addBtn').addEventListener('click', createRow);
 
     function createRow() {
         const row = document.createElement('div');
-        row.className = 'item-row';
-        
+        row.className = 'item-row'; row.draggable = true;
         let colorOptions = '<option value="">選擇顏色...</option>';
-        uniqueColors.forEach(color => {
-            colorOptions += `<option value="${color}">${color}</option>`;
-        });
+        uniqueColors.forEach(color => { colorOptions += `<option value="${color}">${color}</option>`; });
 
         row.innerHTML = `
-            <div class="form-group">
-                <label>顏色 (Color)</label>
-                <select class="color-select">${colorOptions}</select>
+            <div class="form-group" style="cursor: pointer;" title="按住可上下拖曳"><label>☰ 顏色</label><select class="color-select">${colorOptions}</select></div>
+            <div class="form-group large"><label>商品名稱</label><select class="product-select" disabled><option value="">請選擇...</option></select></div>
+            <div class="form-group"><label>SKU 貨號</label><input type="text" class="sku-input" readonly placeholder="自動帶入"></div>
+            <div class="form-group"><label>單價</label><input type="text" class="price-input" readonly placeholder="0"></div>
+            <div class="form-group small"><label>數量</label><input type="number" class="qty-input" value="1" min="1" disabled></div>
+            <div class="form-group"><label>小計</label><input type="text" class="subtotal-input" readonly placeholder="0"></div>
+            <div class="action-group">
+                <div class="action-row"><button class="btn-icon" onclick="moveRow(this, 'up')">🔼</button><button class="btn-icon" onclick="moveRow(this, 'down')">🔽</button></div>
+                <button class="btn-icon btn-delete" type="button">✖</button>
             </div>
-            <div class="form-group large">
-                <label>商品名稱 (Product)</label>
-                <select class="product-select" disabled>
-                    <option value="">請先選擇顏色...</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>SKU</label>
-                <input type="text" class="sku-input" readonly placeholder="自動帶入">
-            </div>
-            <div class="form-group">
-                <label>單價 (Price)</label>
-                <input type="text" class="price-input" readonly placeholder="0">
-            </div>
-            <div class="form-group small">
-                <label>數量 (QTY)</label>
-                <input type="number" class="qty-input" value="1" min="1" disabled>
-            </div>
-            <div class="form-group">
-                <label>小計 (Subtotal)</label>
-                <input type="text" class="subtotal-input" readonly placeholder="0">
-            </div>
-            <button class="remove-btn" type="button" title="刪除此列">刪除</button>
         `;
 
         const colorSelect = row.querySelector('.color-select');
@@ -340,81 +416,49 @@
         const priceInput = row.querySelector('.price-input');
         const qtyInput = row.querySelector('.qty-input');
         const subtotalInput = row.querySelector('.subtotal-input');
-        const removeBtn = row.querySelector('.remove-btn');
+        const removeBtn = row.querySelector('.btn-delete');
 
         function resetRowFields() {
-            skuInput.value = '';
-            priceInput.value = '';
-            qtyInput.value = '1';
-            qtyInput.disabled = true;
-            subtotalInput.value = '';
-            calculateGrandTotal();
+            skuInput.value = ''; priceInput.value = ''; qtyInput.value = '1';
+            qtyInput.disabled = true; subtotalInput.value = ''; calculateTotals();
         }
 
         colorSelect.addEventListener('change', function() {
-            const selectedColor = this.value;
-            productSelect.innerHTML = '<option value="">請選擇商品...</option>';
-            resetRowFields();
-
+            const selectedColor = this.value; productSelect.innerHTML = '<option value="">請選擇...</option>'; resetRowFields();
             if (selectedColor) {
                 productSelect.disabled = false;
-                const filteredProducts = database.filter(item => item.color === selectedColor);
-                filteredProducts.forEach(product => {
+                database.filter(item => item.color === selectedColor).forEach(product => {
                     const option = document.createElement('option');
-                    option.value = product.sku;
-                    option.textContent = product.name;
-                    productSelect.appendChild(option);
+                    option.value = product.sku; option.textContent = product.name; productSelect.appendChild(option);
                 });
-            } else {
-                productSelect.disabled = true;
-                productSelect.innerHTML = '<option value="">請先選擇顏色...</option>';
-            }
+            } else { productSelect.disabled = true; }
         });
 
         productSelect.addEventListener('change', function() {
-            const selectedSku = this.value;
-            if (selectedSku) {
-                const product = database.find(item => item.sku === selectedSku);
-                skuInput.value = product.sku;
-                priceInput.value = formatCurrency(product.price);
-                qtyInput.disabled = false;
-                qtyInput.value = 1;
-                
-                const subtotal = product.price * 1;
-                subtotalInput.value = formatCurrency(subtotal);
-                calculateGrandTotal();
-            } else {
-                resetRowFields();
-            }
+            if (this.value) {
+                qtyInput.disabled = false; qtyInput.value = 1;
+                const product = database.find(item => item.sku === this.value);
+                skuInput.value = product.sku; priceInput.value = formatCurrency(product.price);
+                subtotalInput.value = formatCurrency(product.price); calculateTotals();
+            } else { resetRowFields(); }
         });
 
         qtyInput.addEventListener('input', function() {
-            const selectedSku = productSelect.value;
-            if (selectedSku) {
-                const product = database.find(item => item.sku === selectedSku);
-                const qty = parseInt(this.value) || 0;
-                const subtotal = product.price * qty;
-                subtotalInput.value = formatCurrency(subtotal);
-                calculateGrandTotal();
+            if (productSelect.value) {
+                const product = database.find(item => item.sku === productSelect.value);
+                subtotalInput.value = formatCurrency(product.price * (parseInt(this.value) || 0)); calculateTotals();
             }
         });
 
         removeBtn.addEventListener('click', function() {
-            if (document.querySelectorAll('.item-row').length > 1) {
-                row.remove();
-                calculateGrandTotal();
-            } else {
-                colorSelect.value = "";
-                colorSelect.dispatchEvent(new Event('change'));
-            }
+            if (document.querySelectorAll('.item-row').length > 1) { row.remove(); calculateTotals(); } 
+            else { colorSelect.value = ""; colorSelect.dispatchEvent(new Event('change')); }
         });
 
         orderLinesContainer.appendChild(row);
     }
-
-    addBtn.addEventListener('click', createRow);
+    
     createRow();
 </script>
-
 </body>
 </html>
