@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>麻吉沙發 報價與空間演算系統 (列印與說明版)</title>
+    <title>麻吉沙發 報價與空間演算系統 (列印鎮壓版)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -56,10 +56,12 @@
         .sofa-module.ottoman { background-color: #fff8c5; border-color: #b08800; color: #b08800; border-style: dashed; }
         .module-desc { font-size: 10px; opacity: 0.8; margin-top: 2px; font-weight: normal;}
         
-        /* 說明連結專屬樣式 */
         .preview-footer { width: 100%; max-width: 1200px; text-align: left; margin-top: 12px; padding-left: 8px; }
         .help-link { color: #586069; font-size: 14px; text-decoration: none; font-weight: bold; transition: color 0.2s; }
         .help-link:hover { color: #0366d6; text-decoration: underline; }
+
+        /* 列印用隱藏表頭 (平常不顯示) */
+        .print-header { display: none; }
 
         @media (max-width: 768px) {
             body { padding: 16px 8px; }
@@ -74,28 +76,49 @@
             .total-area { flex-direction: column; gap: 16px; align-items: flex-end; }
         }
 
-        /* 列印模式的白底黑字黑魔法 */
+        /* ★ 列印模式終極鎮壓指令 ★ */
         @media print {
             body { background-color: #fff; padding: 0; }
             .container, .preview-container { border: none; box-shadow: none; padding: 0; margin-bottom: 20px; max-width: 100%; margin-top: 0; }
             
-            /* 把按鈕、說明連結全砍了不印 */
+            /* 隱藏不必要的按鈕 */
             .add-btn, .action-group, .print-btn, .compass-ctrl, .preview-footer { display: none !important; }
-            .item-row { border: none; border-bottom: 1px solid #ddd; background-color: #fff; padding: 8px 0; margin-bottom: 0; }
             
-            select, input { border: none; background-color: transparent !important; padding: 0; font-size: 12px; -webkit-appearance: none; appearance: none; color: #000; }
-            label { display: none; }
+            /* 啟動列印專用表頭，並強制與商品列對齊 */
+            .print-header { 
+                display: flex !important; flex-direction: row !important; gap: 10px !important; 
+                font-weight: bold; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 13px; 
+            }
+            .print-header > div { flex: 1; }
+            .print-header > .small { flex: 0.6; }
+            .print-header > .large { flex: 1.8; }
+
+            /* 強制每一列都是水平排列，無視手機版 RWD */
+            .item-row { 
+                display: flex !important; flex-direction: row !important; gap: 10px !important; 
+                border: none !important; border-bottom: 1px solid #ddd !important; padding: 8px 0 !important; margin-bottom: 0 !important; 
+            }
+            
+            /* 強制每個欄位寬度比例 */
+            .form-group { display: flex !important; flex-direction: row !important; align-items: center !important; flex: 1 !important; margin: 0 !important; }
+            .form-group.small { flex: 0.6 !important; }
+            .form-group.large { flex: 1.8 !important; }
+            
+            /* 讓輸入框文字變成純文字，並把原有的 Label 隱藏 */
+            select, input { 
+                border: none !important; background-color: transparent !important; padding: 0 !important; 
+                font-size: 12px !important; -webkit-appearance: none !important; appearance: none !important; 
+                color: #000 !important; margin: 0 !important;
+            }
+            label { display: none !important; }
+            select::-ms-expand { display: none !important; } /* 隱藏 IE/Edge 下拉箭頭 */
             
             .preview-container { background-color: #fff; margin-top: 40px;}
-            .preview-title { color: #000; border-bottom: 2px solid #000; font-size: 18px; }
+            .preview-title { color: #000; border-bottom: 2px solid #000; font-size: 18px; margin-bottom: 20px; }
             
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .sofa-module { box-shadow: none; border-width: 1px; }
+            .sofa-module { box-shadow: none !important; border-width: 1px !important; }
             
-            #orderLines::before {
-                content: "顏色\2003\2003\2003\2003商品名稱\2003\2003\2003\2003\2003\2003SKU 貨號\2003\2003單價\2003\2003數量\2003\2003小計";
-                display: block; font-weight: bold; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px; font-size: 12px; white-space: pre;
-            }
             .total-row { font-size: 20px; color: #000; }
         }
     </style>
@@ -107,6 +130,15 @@
         麻吉沙發 空間與報價演算系統
         <button class="add-btn" id="addBtn">+ 新增品項</button>
     </h2>
+    <!-- 列印專用的對齊表頭 -->
+    <div id="printHeader" class="print-header">
+        <div>顏色</div>
+        <div class="large">商品名稱</div>
+        <div>SKU 貨號</div>
+        <div>單價</div>
+        <div class="small">數量</div>
+        <div>小計</div>
+    </div>
     <div id="orderLines"></div>
     <div class="total-area">
         <button class="print-btn" onclick="window.print()">🖨️ 列印報價單</button>
@@ -412,7 +444,7 @@
         uniqueColors.forEach(color => { colorOptions += `<option value="${color}">${color}</option>`; });
 
         row.innerHTML = `
-            <div class="form-group" style="cursor: pointer;" title="按住可上下拖曳"><label>☰ 顏色</label><select class="color-select">${colorOptions}</select></div>
+            <div class="form-group"><label>☰ 顏色</label><select class="color-select">${colorOptions}</select></div>
             <div class="form-group large"><label>商品名稱</label><select class="product-select" disabled><option value="">請選擇...</option></select></div>
             <div class="form-group"><label>SKU 貨號</label><input type="text" class="sku-input" readonly placeholder="自動帶入"></div>
             <div class="form-group"><label>單價</label><input type="text" class="price-input" readonly placeholder="0"></div>
